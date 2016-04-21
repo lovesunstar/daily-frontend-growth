@@ -1,4 +1,7 @@
-document.dispatcher = (function() {
+(function() {
+	if (document.dispatcher) {
+		return;
+	}
 	var eventId = 0;
 	function EventItem(func, args, eid) {
 		this.func = func;
@@ -24,7 +27,7 @@ document.dispatcher = (function() {
 	function eventItemsChanged() {
 		if (eventInterval) {
 			if (eventQueue.length == 0) {
-				clearInterval(eventInterval)
+				clearInterval(eventInterval), eventInterval = 0;
 			};
 			return;
 		};
@@ -34,12 +37,11 @@ document.dispatcher = (function() {
 				item.func.apply(null, item.args);
 			} catch (e) {};
 			if (eventQueue.length == 0) {
-				clearInterval(eventInterval);
+				clearInterval(eventInterval), eventInterval = 0;
 			}
 		}, 100);
 	};
-
-	var dispatcher = {
+	document.dispatcher = {
 		async: function(func) {
 			var id = eventId;
 			addEventItem(new EventItem(func, Array.prototype.slice.call(arguments, 1), id));
@@ -50,7 +52,6 @@ document.dispatcher = (function() {
 			removeEventItem(eid);
 		}
 	};
-	return dispatcher;
 }());
 
 /* test */
@@ -62,3 +63,4 @@ document.dispatcher.async(abc, 1)
 var eid = document.dispatcher.async(abc, 2)
 document.dispatcher.async(abc, 3)
 document.dispatcher.cancel(eid)
+
